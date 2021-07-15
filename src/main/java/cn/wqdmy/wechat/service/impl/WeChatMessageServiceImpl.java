@@ -21,6 +21,7 @@ import cn.wqdmy.wechat.message.event.EventEnum;
 import cn.wqdmy.wechat.message.event.UserEventMessage;
 import cn.wqdmy.wechat.message.request.LocationMessageRequest;
 import cn.wqdmy.wechat.message.request.TextMessageRequest;
+import cn.wqdmy.wechat.message.request.VoiceMessageRequest;
 import cn.wqdmy.wechat.message.response.TextMessageResponse;
 import cn.wqdmy.wechat.service.WeChatMessageService;
 import cn.wqdmy.wechat.util.IPGetInfoUtils;
@@ -317,7 +318,8 @@ public class WeChatMessageServiceImpl implements WeChatMessageService {
 	 * @return
 	 */
 	private BaseMessage voiceMsg(BaseMessage message) {
-		return new TextMessageResponse(message, RESULT);
+		VoiceMessageRequest request = (VoiceMessageRequest) message;
+		return new TextMessageResponse(message, "您好，您的语音内容为：" +request.getRecognition());
 	}
 
 	/**
