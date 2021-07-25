@@ -4,6 +4,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.encryption.InvalidPasswordException;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.PDFTextStripperByArea;
+import org.apache.poi.hwpf.extractor.WordExtractor;
 import org.apache.poi.xwpf.extractor.XWPFWordExtractor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.slf4j.Logger;
@@ -75,16 +76,26 @@ public final class ReadFileUtils {
 	 * @return
 	 */
 	public static String readWord(File wordFile) {
-		if (!wordFile.getName().matches(".+[.](?i)(doc|docx)$")) {
+		if (wordFile.getName().matches(".+[.](?i)doc$")) {
+			try (FileInputStream fileStream = new FileInputStream(wordFile);
+					WordExtractor wordExtractor = new WordExtractor(fileStream);) {
+				return wordExtractor.getText();
+			} catch (Exception e) {
+				log.error("Word文件.doc读取失败：{}", wordFile.getName(), e);
+			}
+
+		} else if (wordFile.getName().matches(".+[.](?i)docx$")) {
+			try (FileInputStream fileStream = new FileInputStream(wordFile);
+					XWPFWordExtractor extractor = new XWPFWordExtractor(new XWPFDocument(fileStream));) {
+				return extractor.getText();
+			} catch (Exception e) {
+				log.error("Word文件.docx读取失败：{}", wordFile.getName(), e);
+			}
+
+		} else {
 			return "文件类型错误.doc|.docx";
 		}
-		try (FileInputStream fileStream = new FileInputStream(wordFile);
-				XWPFWordExtractor extractor = new XWPFWordExtractor(new XWPFDocument(fileStream));) {
 
-			return extractor.getText();
-		} catch (IOException e) {
-			log.error("Word文件读取失败：{}", wordFile.getName(), e);
-		}
 		return "Word文件读取失败";
 	}
 }
